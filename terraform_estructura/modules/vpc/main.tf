@@ -6,10 +6,13 @@ resource "aws_vpc" "main" {
   }
 }
 
+
 resource "aws_subnet" "public" {
-  vpc_id     = aws_vpc.main.id
-  cidr_block = var.subnet_cidr
-  availability_zone = var.availability_zone
+  count = length(var.subnet_cidrs)
+
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = var.subnet_cidrs[count.index]
+  availability_zone = "us-east-1${["a", "b", "c"][count.index]}"
   map_public_ip_on_launch = true
   tags = {
     Name = "${var.vpc_name}-public"
@@ -38,6 +41,7 @@ resource "aws_route_table" "public" {
 }
 
 resource "aws_route_table_association" "public" {
-  subnet_id      = aws_subnet.public.id
+  for_each      = { for idx, subnet_id in aws_subnet.public : idx => subnet_id }
+  subnet_id     = each.value.id
   route_table_id = aws_route_table.public.id
 }

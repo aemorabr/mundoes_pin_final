@@ -19,3 +19,8 @@ variable "subnet_id" {
   description = "The ID of the subnet where the EC2 instance will be created"
   type        = string
 }
+
+variable "vpc_id" {
+  description = "The ID of the vpc where the EC2 instance will be created"
+  type        = string
+}

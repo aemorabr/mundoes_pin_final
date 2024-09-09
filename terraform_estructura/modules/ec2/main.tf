@@ -1,7 +1,3 @@
-resource "aws_key_pair" "pin" {
-  key_name   = "pin"
-  public_key = file("${path.module}/pin.pem.pub")
-}
 
 # Definición del rol de IAM
 resource "aws_iam_role" "ec2_admin_role" {
@@ -32,6 +28,32 @@ resource "aws_iam_instance_profile" "ec2_admin_profile" {
   name = "ec2-admin-profile"
   role = aws_iam_role.ec2_admin_role.name
 }
+
+resource "aws_security_group" "allow_ssh" {
+  name        = "allow_ssh"
+  description = "Allow SSH inbound traffic"
+  vpc_id      = var.vpc_id
+
+  ingress {
+    description = "SSH from anywhere"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "allow_ssh"
+  }
+}
+
 resource "aws_instance" "ec2_instance" {
   ami           = var.ami_id
   instance_type = var.instance_type
@@ -39,7 +61,9 @@ resource "aws_instance" "ec2_instance" {
   key_name      = aws_key_pair.pin.key_name
   associate_public_ip_address = true
   iam_instance_profile        = aws_iam_instance_profile.ec2_admin_profile.name
+  vpc_security_group_ids = [aws_security_group.allow_ssh.id]
   tags = {
     Name = var.instance_name
   }
+  depends_on = [aws_security_group.allow_ssh]
 }
