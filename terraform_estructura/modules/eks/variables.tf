@@ -43,3 +43,8 @@ variable "role_arn" {
   description = "role_arn for user access"
   type        = string
 }
+
+variable "vpc_id" {
+  description = "The ID of the vpc where the EC2 instance will be created"
+  type        = string
+}
