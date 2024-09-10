@@ -6,7 +6,7 @@ kubectl create namespace logging
 eksctl create iamserviceaccount \
 --name fluent-bit \
 --namespace logging \
---cluster eksworkshop-eksctl \
+--cluster eks-mundos-e \
 --attach-policy-arn "arn:aws:iam::${ACCOUNT_ID}:policy/fluent-bit-policy" \
 --approve \
 --override-existing-serviceaccounts
